@@ -1,5 +1,4 @@
 import { test, expect, type Locator, type Page } from '@playwright/test';
-import { getMainPageLocators } from './mainPage.locators';
 
 interface Elements {
   locator: (page: Page) => Locator;
@@ -67,6 +66,18 @@ const elements: Elements[] = [
     locator: (page: Page): Locator => page.getByRole('button', { name: /Search/ }),
     name: 'Search button',
   },
+  {
+    locator: (page: Page): Locator =>
+      page.getByRole('heading', { name: 'Playwright enables reliable' }),
+    name: 'Title',
+    text: 'Playwright enables reliable web automation',
+  },
+  {
+    locator: (page: Page): Locator => page.getByRole('link', { name: 'Get started' }),
+    name: 'Get started button',
+    text: 'Get started',
+    attribute: { type: 'href', value: '/docs/intro' },
+  },
 ];
 
 test.describe('Тесты главной страницы', () => {
@@ -121,28 +132,13 @@ test.describe('Тесты главной страницы', () => {
   });
 
   test('Проверка переключения light mode', async ({ page }) => {
-    const locators = getMainPageLocators(page);
+    const themeToggle = page.getByRole('button', {
+      name: /Switch between dark and light mode/,
+    });
 
-    await locators.themeToggle.click();
-    await locators.themeToggle.click();
+    await themeToggle.click();
+    await themeToggle.click();
 
-    await expect(locators.pageRoot).toHaveAttribute('data-theme', 'dark');
-  });
-
-  test('Проверка заголовка страницы', async ({ page }) => {
-    const locators = getMainPageLocators(page);
-
-    await expect.soft(locators.heroHeading).toBeVisible();
-    await expect
-      .soft(locators.heroHeading)
-      .toContainText('Playwright enables reliable web automation');
-  });
-
-  test('Проверка кнопки Get started', async ({ page }) => {
-    const locators = getMainPageLocators(page);
-
-    await expect.soft(locators.getStarted).toBeVisible();
-    await expect.soft(locators.getStarted).toContainText('Get started');
-    await expect.soft(locators.getStarted).toHaveAttribute('href', '/docs/intro');
+    await expect.soft(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 });
